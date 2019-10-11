@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width" />
+<title>Hello Spring Boot</title>
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
+<link th:href="@{/webjars/bootstrap/css/bootstrap-theme.min.css}" rel="stylesheet" />
+</head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<body>
+
+<h1>Clientes</h1>
+<div class="list-group"></div>
+<h2>Produtos</h2>
+<div class="list-group2"></div>
+
+Cliente: <label id="confirmacaonome"></label>
+Produto: <label id="confirmacaonomeproduto"></label>
+Preco: <label id="confirmacaoprecoproduto"></label>
+Quantidade: <input type="number" id="valortotal" hidden="" min="1" value="1" onchange="atualizarvalor()">
+Valor Total: <input type="number" id="valortotalsomado" hidden="" readonly="readonly">
+<button id="buttoncomprar" class="btn btn-success" hidden="" onclick="comprar()">Efetuar Comprar</button>
+<button class="btn btn-warning" id="gerarrelatorio">Gerar Relatório</button>
+
+<div id="relatorio">
+
+</div>
+
+<script type="text/javascript">
+
+
+//variaveis globais
+var idclienteglobal;
+var idprodutoglobal;
+var valortotalglobal;
+
+$("#gerarrelatorio").click(function(){
+	  $.get("http://localhost:8080/gerarrelatorio", function(data, status){
+	    alert("Data: " + data + "\nStatus: " + status);
+	  });
+	});
+
+function comprar(){
+
+	if(idclienteglobal !== undefined){
+	    $.ajax({      
+            url: "http://localhost:8080/vendaadicionar",
+            type: "POST",
+            data: JSON.stringify(
+            		{
+            		    "id": 0,
+            		    "idcliente": idclienteglobal,
+            		    "idproduto": idprodutoglobal,
+            		    "valortotal": document.getElementById("valortotalsomado").value,
+            		    "cliente": null,
+            		    "produto": null
+            		}),
+            Accept : "application/json",
+            contentType: "application/json", 
+            dataType: "json",
+                success: function(resultData) {
+					alert("Comprado com sucesso!")
+                	window.location.reload()
+                },
+
+          });
+
+	}else{
+	alert("Escolher cliente e produto!");
+	}
+	//alert(idclienteglobal);
+	//alert("id cliente "+idclienteglobal+" idproduto: "+idprodutoglobal+" valor total"+document.getElementById("valortotalsomado").value);
+}
+
+//atualizar campo preço
+function atualizarvalor(){
+	var preco = parseFloat(valortotalglobal);
+	var soma = parseFloat(document.getElementById("valortotal").value);
+	document.getElementById("valortotalsomado").value = preco * soma;
+}
+
+//funcao pegar click da lista clientes
+function btn(esse1) {
+	idclienteglobal = esse1;
+	$(document).ready(function(){
+	    $.getJSON("http://localhost:8080/clientesporid/"+esse1, function(result){
+	    	$("#confirmacaonome").text(result.nome);
+	        		
+	      });});
+	}
+//funcar pegar click da lista produtos
+function btn2(esse2) {
+	idprodutoglobal = esse2;
+	$(document).ready(function(){
+	    $.getJSON("http://localhost:8080/produto/"+esse2, function(result){
+	    	valortotalglobal = result.valor;
+	    	$("#confirmacaonomeproduto").text(result.nome);
+	    	$("#confirmacaoprecoproduto").text(result.valor);
+	    	$("#valortotal").show();
+	    	$("#valortotalsomado").show();
+	    	$("#buttoncomprar").show();
+	    	var flutuante = parseFloat(result.valor);
+	    	$("#valortotalsomado").val(result.valor);
+	      });});
+	}
+	
+	//listar produtos
+	$(document).ready(function(){
+
+	    $.getJSON("http://localhost:8080/produtos", function(result){
+	    	$(".list-group2").empty();
+	    		$.each(result, function(i, field){
+	        		$(".list-group2").prepend("<button id='"+field.id+"' type='"+"button'"+" class='"+"list-group-item list-group-item-action'"+" onclick="+"'btn2(this.id)'>"
+	        									+"Nome: "+field.nome+
+	        									" id: "+field.id + 
+	        									" valor: "+field.valor + 
+	        									"</button> ");   
+	      });
+	    });
+	  });
+
+//lista clientes
+$(document).ready(function(){
+
+	    $.getJSON("http://localhost:8080/clientes", function(result){
+	    	$(".list-group").empty();
+	    		$.each(result, function(i, field){
+	        		$(".list-group").prepend("<button id='"+field.idcliente+"' type='"+"button'"+" class='"+"list-group-item list-group-item-action'"+" onclick="+"'btn(this.id)'>"
+	        									+"Nome: "+field.nome+
+	        									" CPF: "+field.cpf + 
+	        									" Data de nascimento: "+field.datanascimento + 
+	        									" Sexo: "+field.sexo + 
+	        									"</button> ");   
+	      });
+	    });
+	  });
+	
+	
+	//consultar 1 cliente
+
+
+</script>
+</body>
+</html>

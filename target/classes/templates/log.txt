@@ -1,0 +1,4 @@
+id venda, cliente id, cliente nome, cliente cpf, data de nascimento, sexo, id produto, nome do produto, valor produto, valor total
+1, 4, Fernanda Silva, 98654568565, 1983-02-15, M, 1, Rexona 200ml, 12.35, 12.35
+2, 1, Reginaldo Batista, 82546975231, 1958-02-18, H, 1, Rexona 200ml, 12.35, 12.35
+3, 4, Fernanda Silva, 98654568565, 1983-02-15, M, 1, Rexona 200ml, 12.35, 12.35
